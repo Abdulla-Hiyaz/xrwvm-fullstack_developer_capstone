@@ -11,14 +11,12 @@ import logging
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-# from .populate import initiate
+from .models import CarMake, CarModel
+from .populate import initiate
 
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
-
-
-# Create your views here.
 
 
 # Create a `login_request` view to handle sign in request
@@ -65,8 +63,6 @@ def logout_request(request):
 # Create a `registration` view to handle sign up request
 @csrf_exempt
 def registration(request):
-    context = {}
-
     # Load JSON data from the request body
     data = json.loads(request.body)
 
@@ -77,14 +73,13 @@ def registration(request):
     email = data['email']
 
     username_exist = False
-    email_exist = False
 
     try:
         # Check if user already exists
         User.objects.get(username=username)
         username_exist = True
+
     except User.DoesNotExist:
-        # If not, this is a new user
         logger.debug("{} is new user".format(username))
 
     # If it is a new user
@@ -115,6 +110,30 @@ def registration(request):
         }
 
         return JsonResponse(data)
+
+
+# Get the available cars
+def get_cars(request):
+    count = CarMake.objects.filter().count()
+    print(count)
+
+    # Populate the database if no CarMake records exist yet
+    if count == 0:
+        initiate()
+
+    car_models = CarModel.objects.select_related('car_make')
+
+    cars = []
+
+    for car_model in car_models:
+        cars.append({
+            "CarModel": car_model.name,
+            "CarMake": car_model.car_make.name
+        })
+
+    return JsonResponse({
+        "CarModels": cars
+    })
 
 
 # Update the `get_dealerships` view to render the index page with
