@@ -13,14 +13,14 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import CarMake, CarModel
 from .populate import initiate
-from .restapis import get_request, analyze_review_sentiments
+from .restapis import get_request, analyze_review_sentiments, post_review
 
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 
-# Create a `login_request` view to handle sign in request
+# Create a `login_user` view to handle sign in request
 @csrf_exempt
 def login_user(request):
     # Get username and password from request body
@@ -141,6 +141,7 @@ def get_cars(request):
 # All dealerships are returned by default.
 # If a state is passed, only dealerships in that state are returned.
 def get_dealerships(request, state="All"):
+
     if state == "All":
         endpoint = "/fetchDealers"
     else:
@@ -156,6 +157,7 @@ def get_dealerships(request, state="All"):
 
 # Get details for a specific dealer
 def get_dealer_details(request, dealer_id):
+
     if dealer_id:
         endpoint = "/fetchDealer/" + str(dealer_id)
 
@@ -176,6 +178,7 @@ def get_dealer_details(request, dealer_id):
 # Get reviews for a specific dealer and analyze
 # the sentiment of every review.
 def get_dealer_reviews(request, dealer_id):
+
     # If dealer id has been provided
     if dealer_id:
         endpoint = "/fetchReviews/dealer/" + str(dealer_id)
@@ -204,20 +207,36 @@ def get_dealer_reviews(request, dealer_id):
 
 
 # Create an `add_review` view to submit a review
-# @csrf_exempt
+@csrf_exempt
 def add_review(request):
+
+    if request.method != "POST":
+        return JsonResponse({
+            "status": 405,
+            "message": "Method not allowed"
+        })
+
     if request.user.is_anonymous is False:
-        data = json.loads(request.body)
 
         try:
+            data = json.loads(request.body)
+
+            print("Review data received:")
+            print(data)
+
             response = post_review(data)
+
+            print("post_review response:")
             print(response)
 
             return JsonResponse({
                 "status": 200
             })
 
-        except Exception:
+        except Exception as e:
+            # Print the actual error in the Django terminal
+            print("Error posting review:", e)
+
             return JsonResponse({
                 "status": 401,
                 "message": "Error in posting review"
@@ -228,4 +247,3 @@ def add_review(request):
             "status": 403,
             "message": "Unauthorized"
         })
-#     ...

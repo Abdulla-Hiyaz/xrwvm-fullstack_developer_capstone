@@ -1,6 +1,6 @@
 """djangoproj URL Configuration
 
-The `urlpatterns` list routes URLs to views.
+The urlpatterns list routes URLs to views.
 """
 
 from django.contrib import admin
@@ -31,4 +31,22 @@ urlpatterns = [
     # Register React page
     path('register/', TemplateView.as_view(template_name="index.html")),
 
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    # Dealers React page
+    path('dealers/', TemplateView.as_view(template_name="index.html")),
+
+    # Dealer details React page
+    path(
+        'dealer/<int:dealer_id>',
+        TemplateView.as_view(template_name="index.html")
+    ),
+
+    # Post Review React page
+    path(
+        'postreview/<int:dealer_id>',
+        TemplateView.as_view(template_name="index.html")
+    ),
+
+] + static(
+    settings.STATIC_URL,
+    document_root=settings.STATIC_ROOT
+)
