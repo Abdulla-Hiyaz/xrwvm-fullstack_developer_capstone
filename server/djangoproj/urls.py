@@ -33,4 +33,7 @@ urlpatterns = [
 
     # About Us page
     path('about/', TemplateView.as_view(template_name="About.html")),
+
+    # Contact Us page
+    path('contact/', TemplateView.as_view(template_name="Contact.html")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
