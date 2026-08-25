@@ -5,13 +5,10 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import logout
 from django.contrib import messages
 from datetime import datetime
-
 from django.http import JsonResponse
 from django.contrib.auth import login, authenticate
-
 import logging
 import json
-
 from django.views.decorators.csrf import csrf_exempt
 
 # from .populate import initiate
@@ -28,7 +25,6 @@ logger = logging.getLogger(__name__)
 def login_user(request):
     # Get username and password from request body
     data = json.loads(request.body)
-
     username = data['userName']
     password = data['password']
 
@@ -52,8 +48,16 @@ def login_user(request):
 
 
 # Create a `logout_request` view to handle sign out request
-# def logout_request(request):
-#     ...
+def logout_request(request):
+    # Terminate user session
+    logout(request)
+
+    # Return empty username
+    data = {
+        "userName": ""
+    }
+
+    return JsonResponse(data)
 
 
 # Create a `registration` view to handle sign up request
